@@ -1,0 +1,12 @@
+name: Tablero-OMI
+title: Tablero-OMI
+username: observatoriovivienda
+account: observatoriovivienda
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11905801
+bundleId: 8574097
+url: https://observatoriovivienda.shinyapps.io/Tablero-OMI/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

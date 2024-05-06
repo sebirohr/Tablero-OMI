@@ -1,0 +1,12 @@
+name: Tablero-OMI
+title: Tablero-OMI
+username: sebiro
+account: sebiro
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11905723
+bundleId: 8561287
+url: https://sebiro.shinyapps.io/Tablero-OMI/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

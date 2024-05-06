@@ -1,0 +1,33 @@
+@font-face {
+  font-family: 'SourceSansPro Semibold';
+  src: url('SourceSansPro-Semibold.otf') format('opentype');
+}
+
+/* Cambiar el color de fondo de la caja */
+.box {
+  background-color: #f0f0f0;
+  text-align: center;
+}
+
+/* Cambiar el color de fondo del encabezado de la caja */
+.box-header {
+  background-color: #cccccc;
+}
+
+/* Cambiar el tamaño de fuente del título de la caja */
+.box-title {
+  font-size: 18px;
+}
+
+/* Cambiar el margen interior del cuerpo de la caja */
+.box-body {
+  padding: 10px;
+  font-size: 20px
+}
+
+
+.skin-yellow .main-header .logo {
+  font-size: 20px;
+  text-align: left;
+  } 
+
