@@ -4,7 +4,6 @@ library(readxl)
 library(maps)
 library(sf)
 library(geojsonio)
-library(googlesheets4)
 library(dplyr)
 library(gt)
 library(DT)
@@ -14,7 +13,8 @@ library(leaflet.extras)
 library(RColorBrewer)
 library(shiny)
 library(shinydashboard)
-library(rsconnect)
+
+#setwd("C:/Users/Sebastián/Documents/Trabajos Propios/OMI/Tablero-OMI")
 
 options(scipen = 999, digits = 10)
 
@@ -54,7 +54,7 @@ Zonaprop <- Zonaprop %>%
 ResumenBarriosCABA <- Zonaprop %>%
   group_by(Barrio_Recod) %>%
   summarise('Total' = n(),
-            'Promedio precio' = paste0("$", format(sum(PrecioPesos) / n(), nsmall = 2, decimal.mark = ",", big.mark = ".")),
+            'Promedio precio' = sum(PrecioPesos) / n(),
             'Promedio precio m2' = paste0("$", format(sum(PrecioM2Pesos) / n(), nsmall = 2, decimal.mark = ",", big.mark = ".")),
             'Porcentaje dolarizado' = paste0(format(round(100 * (sum(ifelse(Dolarizado == "si", 1, 0)) / n()), digits = 2), nsmall = 2, decimal.mark = ",", big.mark = "."), "%")) 
 
@@ -85,10 +85,10 @@ Generales <- Zonaprop_Precio %>%
 dt_ambientes <- Zonaprop_Precio %>%
   group_by(RangosAmbientes) %>%
   summarise('Total' = n(),
-            'Promedio precio' = paste0("$", format(round(sum(PrecioPesos) / n(),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Mediana precio' = paste0("$", format(round(median(PrecioPesos),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Promedio precio m2' = paste0("$", format(round(sum(PrecioM2Pesos) / n(),2), nsmall = 2, decimal.mark = ",", big.mark = ".")),
-            'Porcentaje dolarizado' = paste0(format(round(100 * (sum(ifelse(Dolarizado == "si", 1, 0)) / n()), digits = 2), nsmall = 2, decimal.mark = ",", big.mark = "."), "%")) %>%
+            'Promedio precio' = sum(PrecioPesos) / n(),
+            'Mediana precio' = median(PrecioPesos),
+            'Promedio precio m2' = sum(PrecioM2Pesos) / n(),
+            'Porcentaje dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(RangosAmbientes)  %>%
   rename("Ambientes" = RangosAmbientes)
 
@@ -97,22 +97,21 @@ dt_ambientes <- Zonaprop_Precio %>%
 dt_barrio <- Zonaprop_Precio %>%
   group_by(Barrio_Recod) %>%
   summarise('Total' = n(),
-            'Promedio precio' = paste0("$", format(round(sum(PrecioPesos) / n(),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Mediana precio' = paste0("$", format(round(median(PrecioPesos),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Promedio precio m2' = paste0("$", format(round(sum(PrecioM2Pesos) / n(),2), nsmall = 2, decimal.mark = ",", big.mark = ".")),
-            'Porcentaje dolarizado' = paste0(format(round(100 * (sum(ifelse(Dolarizado == "si", 1, 0)) / n()), digits = 2), nsmall = 2, decimal.mark = ",", big.mark = "."), "%")) %>%
-  arrange(desc(Total)) %>%
-  rename("Barrio" = Barrio_Recod)
+            'Promedio precio' = sum(PrecioPesos) / n(),
+            'Mediana precio' = median(PrecioPesos),
+            'Promedio precio m2' = sum(PrecioM2Pesos) / n(),
+            'Porcentaje dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
+  arrange(desc(Total))
 
 ## Por zona. Precio medio y si alquiler está dolarizado o no
 
 dt_zona <- Zonaprop_Precio %>%
   group_by(Corredor) %>%
   summarise('Total' = n(),
-            'Promedio precio' = paste0("$", format(round(sum(PrecioPesos) / n(),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Mediana precio' = paste0("$", format(round(median(PrecioPesos),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Promedio precio m2' = paste0("$", format(round(sum(PrecioM2Pesos) / n(),2), nsmall = 2, decimal.mark = ",", big.mark = ".")),
-            'Porcentaje dolarizado' = paste0(format(round(100 * (sum(ifelse(Dolarizado == "si", 1, 0)) / n()), digits = 2), nsmall = 2, decimal.mark = ",", big.mark = "."), "%")) %>%
+            'Promedio precio' = sum(PrecioPesos) / n(),
+            'Mediana precio' = median(PrecioPesos),
+            'Promedio precio m2' = sum(PrecioM2Pesos) / n(),
+            'Porcentaje dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(desc(Total)) %>%
   rename("Zona" = Corredor)
 
@@ -121,13 +120,11 @@ dt_zona <- Zonaprop_Precio %>%
 dt_rangoprecio <- Zonaprop_Precio %>%
   group_by(RangosPrecio) %>%
   summarise('Total' = n(),
-            'Orden' = sum(PrecioPesos) / n(),
-            'Promedio precio' = paste0("$", format(round(sum(PrecioPesos) / n(),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Mediana precio' = paste0("$", format(round(median(PrecioPesos),2) , nsmall = 2, decimals = 2, decimal.mark = ",", big.mark = ".")),
-            'Promedio precio m2' = paste0("$", format(round(sum(PrecioM2Pesos) / n(),2), nsmall = 2, decimal.mark = ",", big.mark = ".")),
-            'Porcentaje dolarizado' = paste0(format(round(100 * (sum(ifelse(Dolarizado == "si", 1, 0)) / n()), digits = 2), nsmall = 2, decimal.mark = ",", big.mark = "."), "%")) %>%
-  arrange(Orden) %>%
-  select(-Orden) %>%
+            'Promedio precio' = sum(PrecioPesos) / n(),
+            'Mediana precio' = median(PrecioPesos),
+            'Promedio precio m2' = sum(PrecioM2Pesos) / n(),
+            'Porcentaje dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
+  arrange(`Mediana precio`) %>%
   rename("Rangos precio (en miles de pesos)" = RangosPrecio)
 
 ## Resumen por Barrio para mapa

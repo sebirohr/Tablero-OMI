@@ -1,11 +1,10 @@
 
-source("Ayudas Tablero OMI.R")
+source("procesa_basesZP.R")
 
 
 
 dashboardPage(
-  skin = "yellow",
-  dashboardHeader(title = HTML("Observatorio del Mercado inmobiliario"), 
+  dashboardHeader(title = HTML("Situación de la oferta de alquiler de viviendas en CABA"), 
                   disable = FALSE, 
                   titleWidth  = "50%",
                   dropdownMenu(type = 'message', 
@@ -30,20 +29,27 @@ dashboardPage(
   dashboardSidebar(disable = TRUE),
   
   dashboardBody(
+    
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
     tags$div(
-      h4("Monitor de alquileres. Mayo 2024"),
+      h4("Junio 2024"),
     tabPanel("Mapa de publicaciones",
              includeCSS("styles.css"),
              
              
-    box(title = "Total de unidades" , width = 3,
+    box(title = "Total de unidades" , width = 2,
         textOutput("general1")),
-    box(title = "Precio promedio", width = 3, 
+    box(title = "Variación unidades", width = 2, 
         textOutput("general2")),
-    box(title = "Precio mediana", width = 3,  
+    box(title = "Precio promedio", width = 2, 
         textOutput("general3")),
-    box(title = "Porcentaje dolarizados", width = 3, 
+    box(title = "Precio mediana", width = 2,  
         textOutput("general4")),
+    box(title = "Dolarizados", width = 2, 
+        textOutput("general5")),
+    box(title = "Avisos nuevos", width = 2, 
+        textOutput("general6")),
     
     tabsetPanel(
       tabPanel("Mapa de anuncios inmobiliarios",
@@ -77,10 +83,10 @@ dashboardPage(
                                selected = "Barrio")
                  ),
                  mainPanel(
-                   dataTableOutput("tabla")
+                   DT::dataTableOutput("tabla")
                  )
-               )
-      ),tabPanel("Resumen por barrio (Mapa)",
+               ))
+      ,tabPanel("Resumen por barrio (Mapa)",
                  sidebarLayout(
                    sidebarPanel(
                      radioButtons("VariableMapeada",
