@@ -1,5 +1,5 @@
 
-source("procesa_basesZP.R")
+source("procesa_bases.R")
 
 function(input, output) {
   
@@ -30,11 +30,11 @@ function(input, output) {
   })
   
   output$general3 <- renderText({
-    paste0("$", format(sumGenerales$promedioP0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."))
+    paste0("$", format(sumGenerales$promedioP0, nsmall = 2, decimal.mark = ",", big.mark = "."))
   })
   
   output$general4 <- renderText({
-    paste0("$", format(sumGenerales$medianaP0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."))
+    paste0("$", format(sumGenerales$medianaP0, nsmall = 2, decimal.mark = ",", big.mark = ".", scientific = FALSE))
   })
   
   output$general5 <- renderText({
@@ -54,9 +54,9 @@ function(input, output) {
     
     datatable(data) %>%
       formatPercentage('Var mensual Avisos', digits = 2) %>%
-      formatCurrency('Mediana', mark = ".", dec.mark = ",", currency = '$', digits = 2) %>%
-      formatCurrency('Promedio', mark = ".", dec.mark = ",", currency = '$', digits = 2) %>%
-      formatCurrency('Promedio M2', mark = ".", dec.mark = ",", currency = '$', digits = 2) %>%
+      formatCurrency('Mediana', mark = ".", dec.mark = ",", currency = '$', digits = 1) %>%
+      formatCurrency('Promedio', mark = ".", dec.mark = ",", currency = '$', digits = 1) %>%
+      formatCurrency('Promedio M2', mark = ".", dec.mark = ",", currency = '$', digits = 1) %>%
       formatPercentage('% Dolarizado', digits = 2) %>%
       formatPercentage('% Nueva', digits = 2)
  })
@@ -71,15 +71,39 @@ function(input, output) {
                   opacity = 1,
                   popup = paste("<a><strong>", sumBarrioMapa$BARRIO,"</strong></a><br>",
                                 "Propiedades: ", sumBarrioMapa$`Q Avisos`, "<br>",
-                                "Var. mensual avisos: ", sumBarrioMapa$`Var mensual Avisos`, "<br>",
-                                "Precio promedio: ", sumBarrioMapa$Promedio, "<br>",
-                                "% Dolarizado: ", sumBarrioMapa$`% Dolarizado`, "<br>")) %>%
+                                "Var. mensual avisos: ", paste0(format(100*sumBarrioMapa$`Var mensual Avisos`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%"), "<br>",
+                                "Precio promedio: ", paste0("$", format(sumBarrioMapa$`Promedio`, nsmall = 2, decimal.mark = ",", big.mark = ".")), "<br>",
+                                "% Dolarizado: ", paste0(format(100*sumBarrioMapa$`% Dolarizado`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%"), "<br>")) %>%
       addLegend("topright", pal = pal,
                 values = if(input$VariableMapeada == "Cantidad") { sumBarrioMapa$`Q Avisos` } else { sumBarrioMapa$Mediana },
                 title = if(input$VariableMapeada == "Cantidad") {"Cantidad de viviendas" } else { "Precio promedio" }  )
   })
     
     
+  output$general1 <- renderText({
+    format(sumGenerales$Total0, big.mark = ".", scientific = FALSE)
+  })
+  
+  output$general2 <- renderText({
+    paste0(format(100*sumGenerales$dif_total, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+  
+  output$general3 <- renderText({
+    paste0("$", format(sumGenerales$promedioP0, nsmall = 2, decimal.mark = ",", big.mark = "."))
+  })
+  
+  output$general4 <- renderText({
+    paste0("$", format(sumGenerales$medianaP0, nsmall = 2, decimal.mark = ",", big.mark = ".", scientific = FALSE))
+  })
+  
+  output$general5 <- renderText({
+    paste0(format(100*sumGenerales$dolarizado0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+  
+  output$general6 <- renderText({
+    paste0(format(100*sumGenerales$nueva0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+  
   output$menu <- renderMenu({
     sidebarMenu(
       menuItem("Mapa de publicaciones", tabName = "mapapublicaciones", icon = icon('dashboard')),

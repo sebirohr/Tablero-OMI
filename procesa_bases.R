@@ -15,11 +15,11 @@ library(leaflet.extras)
 #library(RColorBrewer)
 
 
-setwd("C:/Users/Sebastián/Documents/Trabajos Propios/Urbano/OMI/Tablero-OMI")
+#setwd("C:/Users/Sebastián/Documents/Trabajos Propios/Urbano/OMI/Tablero-OMI")
 
 
 df_0 <- read_csv("df/AvisosInmobiliarios2024-06.csv")
-df_1 <- read_csv("df/zonaprop 2024-04-24alquiler-capital-federal.csv")
+df_1 <- read_csv("df/AvisosInmobiliarios2024-05.csv")
 
 ## Agrego si es publicación nueva o no
 # Cuento la cantidad de veces que el ID figura en la base del mes pasado
@@ -36,6 +36,9 @@ df_0 <- df_0 %>%
 df_0 <- unique(df_0) %>%
   filter(Barrios != "Otro, Capital Federal")
 
+## Quito publicaciones duplicadas
+df_1 <- unique(df_1) %>%
+  filter(Barrios != "Otro, Capital Federal")
 
 ## Armo bases
 quitarubicacion <- read_excel("revisión direcciones.xlsx")
@@ -46,7 +49,6 @@ Barrios_CABA <- Barrios_CABA %>%
     BARRIO == "NUÑEZ" ~ "NUNEZ",
     TRUE ~ as.character(BARRIO)
   ))
-df_1 <- df_1 %>% left_join(BarriosRecod,by = "Barrios")
 
 ### Agrego variables
 
@@ -217,12 +219,12 @@ Generales_1 <- setNames(Generales_1, paste0(names(Generales_1), "1"))
 sumGenerales <- Generales_0 %>%
   cbind(Generales_1) %>%
   mutate(
-    dif_total = (Total1 - Total0) / Total0,
-    dif_promedioP = (promedioP1 - promedioP0) / promedioP0,
-    dif_medianaP = (medianaP1 - medianaP0) / medianaP0,
-    dif_promedioPm2 = (promedioPm21 - promedioPm20) / promedioPm20,
-    dif_dolarizado = dolarizado1 - dolarizado0
-    ) %>%
+    dif_total = (Total0 - Total1) / Total1,
+    dif_promedioP = (promedioP0 - promedioP1) / promedioP1,
+    dif_medianaP = (medianaP0 - medianaP1) / medianaP1,
+    dif_promedioPm2 = (promedioPm20 - promedioPm21) / promedioPm21,
+    dif_dolarizado = dolarizado0 - dolarizado1
+  ) %>%
   select(-c(Total1,promedioP1, medianaP1, promedioPm21, dolarizado1))
 
 ## Por caracteristicas
@@ -231,10 +233,10 @@ sumGenerales <- Generales_0 %>%
 sumAmbientes <- dt_ambientes_0 %>%
   inner_join(dt_ambientes_1, by = "Ambientes", suffix = c("0", "1")) %>%
   mutate(
-    dif_total = (Total1 - Total0) / Total0,
-    dif_promedioP = (promedioP1 - promedioP0) / promedioP0,
-    dif_medianaP = (medianaP1 - medianaP0) / medianaP0,
-    dif_promedioPm2 = (promedioPm21 - promedioPm20) / promedioPm20
+    dif_total = (Total0 - Total1) / Total1,
+    dif_promedioP = (promedioP0 - promedioP1) / promedioP1,
+    dif_medianaP = (medianaP0 - medianaP1) / medianaP1,
+    dif_promedioPm2 = (promedioPm20 - promedioPm21) / promedioPm21,
   ) %>%
   select(-c(Total1,promedioP1, medianaP1, promedioPm21, dolarizado1, dif_promedioP, dif_medianaP, dif_promedioPm2)) %>%
   rename(
@@ -251,10 +253,10 @@ sumAmbientes <- dt_ambientes_0 %>%
 sumZona <- dt_zona_0 %>%
   inner_join(dt_zona_1, by = "Zona", suffix = c("0", "1")) %>%
   mutate(
-    dif_total = (Total1 - Total0) / Total0,
-    dif_promedioP = (promedioP1 - promedioP0) / promedioP0,
-    dif_medianaP = (medianaP1 - medianaP0) / medianaP0,
-    dif_promedioPm2 = (promedioPm21 - promedioPm20) / promedioPm20
+    dif_total = (Total0 - Total1) / Total1,
+    dif_promedioP = (promedioP0 - promedioP1) / promedioP1,
+    dif_medianaP = (medianaP0 - medianaP1) / medianaP1,
+    dif_promedioPm2 = (promedioPm20 - promedioPm21) / promedioPm21,
   ) %>%
   select(-c(Total1,promedioP1, medianaP1, promedioPm21, dolarizado1, dif_promedioP, dif_medianaP, dif_promedioPm2)) %>%
   rename(
@@ -270,10 +272,10 @@ sumZona <- dt_zona_0 %>%
 sumRangos <- dt_rangoprecio_0 %>%
   inner_join(dt_rangoprecio_1, by = "RangosPrecio", suffix = c("0", "1")) %>%
   mutate(
-    dif_total = (Total1 - Total0) / Total0,
-    dif_promedioP = (promedioP1 - promedioP0) / promedioP0,
-    dif_medianaP = (medianaP1 - medianaP0) / medianaP0,
-    dif_promedioPm2 = (promedioPm21 - promedioPm20) / promedioPm20
+    dif_total = (Total0 - Total1) / Total1,
+    dif_promedioP = (promedioP0 - promedioP1) / promedioP1,
+    dif_medianaP = (medianaP0 - medianaP1) / medianaP1,
+    dif_promedioPm2 = (promedioPm20 - promedioPm21) / promedioPm21,
   ) %>%
   select(-c(Total1,promedioP1, medianaP1, promedioPm21, dolarizado1, dif_promedioP, dif_medianaP, dif_promedioPm2)) %>%
   rename(
@@ -289,10 +291,10 @@ sumRangos <- dt_rangoprecio_0 %>%
 sumBarrio <- dt_barrio_0 %>%
   inner_join(dt_barrio_1, by = "Barrio_Recod", suffix = c("0", "1")) %>%
   mutate(
-    dif_total = (Total1 - Total0) / Total0,
-    dif_promedioP = (promedioP1 - promedioP0) / promedioP0,
-    dif_medianaP = (medianaP1 - medianaP0) / medianaP0,
-    dif_promedioPm2 = (promedioPm21 - promedioPm20) / promedioPm20
+    dif_total = (Total0 - Total1) / Total1,
+    dif_promedioP = (promedioP0 - promedioP1) / promedioP1,
+    dif_medianaP = (medianaP0 - medianaP1) / medianaP1,
+    dif_promedioPm2 = (promedioPm20 - promedioPm21) / promedioPm21,
   ) %>%
   select(-c(Total1,promedioP1, medianaP1, promedioPm21, dolarizado1, dif_promedioP, dif_medianaP, dif_promedioPm2)) %>%
   rename(
@@ -318,7 +320,3 @@ pal <- colorNumeric("Blues", NULL)
 sumBarrioMapa <- Barrios_CABA %>%
   left_join(sumBarrio, by = c("BARRIO" = "Barrio"))
 
-
-
-leaflet() %>%
-  addPolygons(data = Barrios_CABA, stroke = FALSE, smoothFactor = 0.3, fillOpacity = 0.7)

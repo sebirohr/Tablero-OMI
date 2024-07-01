@@ -1,5 +1,5 @@
 
-source("procesa_basesZP.R")
+source("procesa_bases.R")
 
 
 
@@ -33,7 +33,7 @@ dashboardPage(
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")),
     tags$div(
-      h4("Junio 2024"),
+      h4("Julio 2024"),
     tabPanel("Mapa de publicaciones",
              includeCSS("styles.css"),
              
