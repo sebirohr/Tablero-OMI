@@ -15,7 +15,7 @@ library(leaflet.extras)
 #library(RColorBrewer)
 
 
-#setwd("C:/Users/Sebastián/Documents/Trabajos Propios/Urbano/OMI/Tablero-OMI")
+setwd("C:/Users/Sebastián/Documents/Trabajos Propios/Urbano/OMI/Tablero-OMI")
 
 
 df_0 <- read_csv("df/AvisosInmobiliarios2024-06.csv")
@@ -36,9 +36,23 @@ df_0 <- df_0 %>%
 df_0 <- unique(df_0) %>%
   filter(Barrios != "Otro, Capital Federal")
 
+df_0 <- df_0 %>%
+  mutate(PrecioPesos = case_when(PrecioPesos > 70000000 | PrecioPesos < 20000 ~ NA, 
+                                 TRUE ~ PrecioPesos),
+         PrecioM2Pesos = case_when(PrecioPesos > 70000000 | PrecioPesos < 20000 ~ NA, 
+                                   MetrosCuadrados == 1  ~ NA,
+                                 TRUE ~ PrecioM2Pesos)) 
+
 ## Quito publicaciones duplicadas
 df_1 <- unique(df_1) %>%
   filter(Barrios != "Otro, Capital Federal")
+
+df_1 <- df_1 %>%
+  mutate(PrecioPesos = case_when(PrecioPesos > 70000000 | PrecioPesos < 20000 ~ NA, 
+                                 TRUE ~ PrecioPesos),
+         PrecioM2Pesos = case_when(PrecioPesos > 70000000 | PrecioPesos < 20000 ~ NA, 
+                                   MetrosCuadrados == 1  ~ NA,
+                                   TRUE ~ PrecioM2Pesos)) 
 
 ## Armo bases
 quitarubicacion <- read_excel("revisión direcciones.xlsx")
@@ -95,9 +109,9 @@ df_1 <- df_1 %>%
 
 Generales_0 <- df_0 %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'nueva' = sum(ifelse(nueva == "Si", 1, 0)) / n(),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(desc(Total))
@@ -106,9 +120,9 @@ Generales_0 <- df_0 %>%
 dt_ambientes_0 <- df_0 %>%
   group_by(RangosAmbientes) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'nueva' = sum(ifelse(nueva == "Si", 1, 0)) / n(),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(RangosAmbientes)  %>%
@@ -119,9 +133,9 @@ dt_ambientes_0 <- df_0 %>%
 dt_barrio_0 <- df_0 %>%
   group_by(Barrio_Recod) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'nueva' = sum(ifelse(nueva == "Si", 1, 0)) / n(),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(desc(Total))
@@ -131,9 +145,9 @@ dt_barrio_0 <- df_0 %>%
 dt_zona_0 <- df_0 %>%
   group_by(Corredor) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'nueva' = sum(ifelse(nueva == "Si", 1, 0)) / n(),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(desc(Total)) %>%
@@ -144,9 +158,9 @@ dt_zona_0 <- df_0 %>%
 dt_rangoprecio_0 <- df_0 %>%
   group_by(RangosPrecio) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'nueva' = sum(ifelse(nueva == "Si", 1, 0)) / n(),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(`medianaP`)
@@ -158,9 +172,9 @@ dt_rangoprecio_0 <- df_0 %>%
 
 Generales_1 <- df_1 %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(desc(Total))
 
@@ -168,9 +182,9 @@ Generales_1 <- df_1 %>%
 dt_ambientes_1 <- df_1 %>%
   group_by(RangosAmbientes) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(RangosAmbientes)  %>%
   rename("Ambientes" = RangosAmbientes)
@@ -180,9 +194,9 @@ dt_ambientes_1 <- df_1 %>%
 dt_barrio_1 <- df_1 %>%
   group_by(Barrio_Recod) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(desc(Total))
 
@@ -191,9 +205,9 @@ dt_barrio_1 <- df_1 %>%
 dt_zona_1 <- df_1 %>%
   group_by(Corredor) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(desc(Total)) %>%
   rename("Zona" = Corredor)
@@ -203,9 +217,9 @@ dt_zona_1 <- df_1 %>%
 dt_rangoprecio_1 <- df_1 %>%
   group_by(RangosPrecio) %>%
   summarise('Total' = n(),
-            'promedioP' = sum(PrecioPesos) / n(),
-            'medianaP' = median(PrecioPesos),
-            'promedioPm2' = sum(PrecioM2Pesos) / n(),
+            'promedioP' = mean(PrecioPesos, na.rm = TRUE),
+            'medianaP' = median(PrecioPesos, na.rm = TRUE),
+            'promedioPm2' = mean(PrecioM2Pesos, na.rm = TRUE),
             'dolarizado' = sum(ifelse(Dolarizado == "si", 1, 0)) / n()) %>%
   arrange(`medianaP`)
 
@@ -313,10 +327,13 @@ df_map <- df_0 %>%
   left_join(quitarubicacion, by = "ID") %>%
   filter(!is.na(Longitud) & !is.na(Direccion) & is.na(Van)) 
 
-## Mapa poligonos 
-
+## paleta para mapa
 pal <- colorNumeric("Blues", NULL)
 
+## Mapa poligonos 
 sumBarrioMapa <- Barrios_CABA %>%
   left_join(sumBarrio, by = c("BARRIO" = "Barrio"))
 
+# maximon y minimos para mapas
+minprecio <- min(df_0$PrecioPesos, na.rm = TRUE)
+maxprecio <- max(df_0$PrecioPesos, na.rm = TRUE)

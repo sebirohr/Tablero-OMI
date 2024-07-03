@@ -14,16 +14,7 @@ dashboardPage(
                                  icon = icon("envelope"),
                                  href = "mailto:sebastianrohr3@gmail.com"
                                ),
-                               icon = icon('comment'))#,
-                  #dropdownMenu(
-                   #   type = 'message',
-                    #  icon = icon("share-alt"),
-                     # messageItem(
-                      #  from = 'LinkedIn',
-                       # message = "",
-                        #icon = icon("linkedin"),
-                        #href = "http://www.linkedin.com/shareArticle?mini=true&url=https://observatoriovivienda.shinyapps.io/Tablero-OMI/"
-  #                  )
+                               icon = icon('comment'))
   ),
   
   dashboardSidebar(disable = TRUE),
@@ -57,9 +48,9 @@ dashboardPage(
                  sidebarPanel(
                    sliderInput("sliderPrecio", 
                                label = 'Rango de precios',
-                               min = 0, 
-                               max = 10000000, 
-                               value = c(0, 100000000),  # Cambiado para coincidir con el rango completo
+                               min = minprecio, 
+                               max = maxprecio, 
+                               value = c(0, 100000000), 
                                step = 1,
                                sep = ".",
                                pre = "$"),
@@ -95,13 +86,21 @@ dashboardPage(
                                   selected = "Cantidad")
                    ), mainPanel(
                      h2("Mapa de avisos por barrio"),
-                     leafletOutput("mapabarrio")
-      
+                     leafletOutput("mapabarrio"))))
+      ,tabPanel("Metodología",
+                h2("Aclaraciones metodologicas"),
+                tags$div(
+                  class = "panel-body",
+                  tags$p("La información surge de la extracción de datos mediante WebScrapping del portal ZonaProp"),
+                  tags$p("La ubicación de las viviendas se obtiene con el uso de la API Geopy a partir de la dirección informada por el portal. Ya sea por formato o por falta de información no todos los avisos pueden ser geolocalizados (Aprox. 75%)"),
+                  tags$p("Los avisos nuevos se obtienen a partir del cruce con el ID de la publicación con la base del mes anterior."),
+                  tags$p("Los precios se pasan de dólares a pesos según el valor del MEP en el día de referencia."),
+                  tags$p("Para el cálculo de promedios se quitan los precios con valores extremos ya que estos configuran un error en la publicación. (Ejemplo de valor alto: viviendas en venta que se publican por error en alquiler; Ejemplo de valor bajo: viviendas que podemos suponer están valuadas en dólares pero no se aclara en la publicación y no lo lee el programa.)")
+                )
     )
 )
 )
 )
 )
 )
-)
-)
+
