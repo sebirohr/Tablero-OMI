@@ -3,10 +3,12 @@ source("procesa_bases.R")
 
 function(input, output, session) {
   
-  filtered_data <- reactive({
-    # Obtener valores de entrada, con valores predeterminados si están vacíos
-    min_precio <- ifelse(is.null(input$inputUserMinPrecio) || input$inputUserMinPrecio == "", minprecio, as.numeric(input$inputUserMinPrecio))
-    max_precio <- ifelse(is.null(input$inputUserMaxPrecio) || input$inputUserMaxPrecio == "", maxprecio, as.numeric(input$inputUserMaxPrecio))
+
+  output$mapa <- renderLeaflet({
+    data <- df_map %>% filter(
+      PrecioPesos > input$sliderPrecio[1],
+      PrecioPesos < input$sliderPrecio[2]
+    )
     
     # Filtrar el DataFrame basado en los valores ingresados
     df_filtrado <- df_map %>%
@@ -80,50 +82,15 @@ function(input, output, session) {
                    "Zona" = sumZona,
                    "Barrio" = sumBarrio,
                    "Ambientes" = sumAmbientes,
-                   "Rango precio" = sumRangos,
-                   "Nuevas por barrio" = dt_nueva_0)
+                   "Rango precio" = sumRangos)
     
-    # Inicializa el datatable
-    dt <- datatable(data)
-    
-    # Aplica el formato condicionalmente basado en la presencia de columnas
-    if ("Var. Avisos" %in% colnames(data)) {
-      dt <- dt %>%
-        formatPercentage('Var. Avisos', digits = 2)
-    }
-    
-    if ("Var. Precio (mediana)" %in% colnames(data)) {
-      dt <- dt %>%
-        formatPercentage('Var. Precio (mediana)', digits = 2)
-    }
-    
-    if ("Mediana" %in% colnames(data)) {
-      dt <- dt %>%
-        formatCurrency('Mediana', mark = ".", dec.mark = ",", currency = '$', digits = 1)
-    }
-    
-    if ("Promedio" %in% colnames(data)) {
-      dt <- dt %>%
-        formatCurrency('Promedio', mark = ".", dec.mark = ",", currency = '$', digits = 1)
-    }
-    
-    if ("Promedio M2" %in% colnames(data)) {
-      dt <- dt %>%
-        formatCurrency('Promedio M2', mark = ".", dec.mark = ",", currency = '$', digits = 1)
-    }
-    
-    if ("% Dolarizado" %in% colnames(data)) {
-      dt <- dt %>%
-        formatPercentage('% Dolarizado', digits = 2)
-    }
-    
-    if ("% Nueva" %in% colnames(data)) {
-      dt <- dt %>%
-        formatPercentage('% Nueva', digits = 2)
-    }
-    
-    # Devuelve el datatable con los formatos aplicados condicionalmente
-    dt
+    datatable(data) %>%
+      formatPercentage('Var mensual Avisos', digits = 2) %>%
+      formatCurrency('Mediana', mark = ".", dec.mark = ",", currency = '$', digits = 1) %>%
+      formatCurrency('Promedio', mark = ".", dec.mark = ",", currency = '$', digits = 1) %>%
+      formatCurrency('Promedio M2', mark = ".", dec.mark = ",", currency = '$', digits = 1) %>%
+      formatPercentage('% Dolarizado', digits = 2) %>%
+      formatPercentage('% Nueva', digits = 2)
  })
 
   
@@ -136,7 +103,7 @@ function(input, output, session) {
                   opacity = 1,
                   popup = paste("<a><strong>", sumBarrioMapa$BARRIO,"</strong></a><br>",
                                 "Propiedades: ", sumBarrioMapa$`Q Avisos`, "<br>",
-                                "Var. mensual avisos: ", paste0(format(100*sumBarrioMapa$`Var. Avisos`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%"), "<br>",
+                                "Var. mensual avisos: ", paste0(format(100*sumBarrioMapa$`Var mensual Avisos`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%"), "<br>",
                                 "Precio promedio: ", paste0("$", format(sumBarrioMapa$`Promedio`, nsmall = 2, decimal.mark = ",", big.mark = ".")), "<br>",
                                 "% Dolarizado: ", paste0(format(100*sumBarrioMapa$`% Dolarizado`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%"), "<br>")) %>%
       addLegend("topright", pal = pal,
