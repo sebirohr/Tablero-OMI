@@ -1,0 +1,112 @@
+@font-face {
+  font-family: 'SourceSansPro Semibold';
+  src: url('SourceSansPro-Semibold.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'SourceSansPro Regular';
+  src: url('SourceSansPro-Regular.otf') format('opentype');
+}
+
+
+@font-face {
+  font-family: 'SourceSansPro Light';
+  src: url('SourceSansPro-Light.otf') format('opentype');
+}
+
+.skin-blue .header-logo {
+  height: 100%;
+  width: 100%;
+  object-fit: contain; /* Ajustar imagen dentro del contenedor sin recortar */
+  padding: 0; /* Eliminar el relleno para que la imagen se ajuste completamente */
+
+}
+.skin-blue .main-header .logo {
+  padding: 0; /* Eliminar el relleno para que la imagen se ajuste completamente */
+}
+
+.skin-blue .main-header .navbar {
+  background-color: #304c5c ; /* Cambia esto al color que desees */
+  text-align: left;
+
+}
+
+.content h4 {
+  color: #2b2b2b;
+  text-align: left; 
+  font-family: 'SourceSansPro Semibold', sans-serif;
+  font-size: 17px;
+}
+
+
+/* Estilos para los boxes en la parte superior (no incluye titulo) */
+.box .box-header {
+  background-color: #cacaca;
+  text-align: center; 
+}
+
+.box .box-header h3 {
+  color: #2b2b2b;
+  text-align: center; 
+  font-family: 'SourceSansPro Semibold', sans-serif;
+  font-size: 14px;
+}
+
+/* Cambia los boxes de abajo*/
+.box {  
+  background-color:  #f1f1f1;
+  text-align: left;
+}
+
+/* Cambia titulo de boxes de abajo*/
+.box-body h2 {  
+  color: #2b2b2b;
+  text-align: left; 
+  font-family: 'SourceSansPro Semibold', sans-serif;
+  font-size: 16px;
+}
+
+/* Cambiar el tamaño de fuente del título de la caja */
+.box-title {
+  font-size: 16px;
+  font-family: 'SourceSansPro Semibold', sans-serif;
+  text-align: left;
+}
+
+/* Cambiar el margen interior del cuerpo de la caja */
+.box-body {
+  padding: 10px;
+  font-size: 14px;
+  text-align: left;
+  font-family: 'SourceSansPro Regular', sans-serif;
+
+}
+
+/* Estilos para los boxes en la parte superior */
+.top-box {
+  background-color: #f0f0f0; /* Fondo gris claro */
+  border: 1px solid #ddd; /* Borde gris */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  padding: 15px; /* Espaciado interno */
+  text-align: center;
+}
+
+.top-box .box-header {
+  text-align: center; /* Alinea el texto del título al centro */
+  font-size: 18px; /* Ajusta el tamaño de la fuente del título */
+  font-weight: bold; /* Pone el título en negrita */
+  color: #333; /* Color del título */
+  margin-bottom: 10px; /* Espacio debajo del título */
+}
+
+.top-box .box-body {
+  font-size: 19px; /* Tamaño de fuente del contenido */
+  text-align: center;
+}
+
+.shiny-text-output {
+  color: #585858; /* Cambia el color del texto */
+  font-size: 16px; /* Ajusta el tamaño de la fuente */
+  font-family: 'SourceSansPro Regular', sans-serif;
+  text-align: center; /* Centra el texto */
+}

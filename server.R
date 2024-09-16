@@ -1,18 +1,48 @@
 
-source("Ayudas Tablero OMI.R")
+source("procesa_bases.R")
 
-function(input, output) {
+function(input, output, session) {
   
-
-  output$mapa <- renderLeaflet({
-    data <- Zonaprop_Mapa %>% filter(
-      PrecioPesos > input$sliderPrecio[1],
-      PrecioPesos < input$sliderPrecio[2]
-    )
+  filtered_data <- reactive({
+    # Obtener valores de entrada, con valores predeterminados si están vacíos
+    min_precio <- ifelse(is.null(input$inputUserMinPrecio) || input$inputUserMinPrecio == "", minprecio, as.numeric(input$inputUserMinPrecio))
+    max_precio <- ifelse(is.null(input$inputUserMaxPrecio) || input$inputUserMaxPrecio == "", maxprecio, as.numeric(input$inputUserMaxPrecio))
     
-    leaflet() %>%
+    # Filtrar el DataFrame basado en los valores ingresados
+    df_filtrado <- df_map %>%
+      filter(
+        PrecioPesos >= min_precio,
+        PrecioPesos <= max_precio
+      )
+    
+    # Aplicar el filtro según la opción seleccionada en el radioButton
+    if (input$dataOption == "pesos") {
+      df_filtrado <- df_filtrado %>%
+        filter(Dolarizado == "no") # Filtrar propiedades no dolarizadas (en pesos)
+    } else if (input$dataOption == "nuevas") {
+      df_filtrado <- df_filtrado %>%
+        filter(nueva == "Si") # Filtrar propiedades nuevas
+    }
+    
+    return(df_filtrado)
+  })
+
+  
+  
+  output$mapa <- renderLeaflet({
+    
+    data <- filtered_data()
+    
+    # Verificar si el data frame está vacío
+    if (nrow(data) == 0) {
+      # Mostrar un mensaje en lugar de un mapa vacío
+      showNotification("Sin publicaciones para los filtros activos", type = "warning", duration = 5)
+      return(NULL)  # No renderizar el mapa
+    }
+    
+    leaflet(data) %>%
       addTiles() %>%
-      addHeatmap(data = data,
+      addHeatmap(#data = data,
                  lng = ~as.numeric(Longitud), lat = ~as.numeric(Latitud),
                  intensity = if(input$intensityOption == "Cantidad") { ~1 } else { ~PrecioPesos },  
                  blur = if(input$intensityOption == "Cantidad") { ~5 } else { ~5 },  
@@ -22,54 +52,123 @@ function(input, output) {
   
   
   output$general1 <- renderText({
-    format(Generales$Total, big.mark = ".", scientific = FALSE)
+    format(sumGenerales$Total0, big.mark = ".", scientific = FALSE)
   })
   
   output$general2 <- renderText({
-    paste0("$", format(Generales$`Promedio precio`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."))
+    paste0(format(100*sumGenerales$dif_total, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
   })
   
   output$general3 <- renderText({
-    paste0("$", format(Generales$`Mediana precio`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."))
+    paste0("$", format(sumGenerales$promedioP0, nsmall = 2, decimal.mark = ",", big.mark = "."))
   })
   
   output$general4 <- renderText({
-    paste0(format(100*Generales$`Porcentaje dolarizado`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
-  })
-
-
-  output$tabla <- renderDataTable({
-    # Definir cómo se muestra la tabla en función de la base de datos seleccionada
-    if (input$data_tabla == "Zona") {
-      return(dt_zona)
-    } else if (input$data_tabla == "Barrio") {
-      return(dt_barrio)
-    } else if (input$data_tabla == "Ambientes") {
-      return(dt_ambientes)
-    } else if (input$data_tabla == "Rango precio") {
-      return(dt_rangoprecio)
-    }
+    paste0("$", format(sumGenerales$medianaP0, nsmall = 2, decimal.mark = ",", big.mark = ".", scientific = FALSE))
   })
   
+  output$general5 <- renderText({
+    paste0(format(100*sumGenerales$dolarizado0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+  
+  output$general6 <- renderText({
+    paste0(format(100*sumGenerales$nueva0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+
+  output$tabla <- renderDT({
+    data <- switch(input$data_tabla,
+                   "Zona" = sumZona,
+                   "Barrio" = sumBarrio,
+                   "Ambientes" = sumAmbientes,
+                   "Rango precio" = sumRangos,
+                   "Nuevas por barrio" = dt_nueva_0)
+    
+    # Inicializa el datatable
+    dt <- datatable(data)
+    
+    # Aplica el formato condicionalmente basado en la presencia de columnas
+    if ("Var. Avisos" %in% colnames(data)) {
+      dt <- dt %>%
+        formatPercentage('Var. Avisos', digits = 2)
+    }
+    
+    if ("Var. Precio (mediana)" %in% colnames(data)) {
+      dt <- dt %>%
+        formatPercentage('Var. Precio (mediana)', digits = 2)
+    }
+    
+    if ("Mediana" %in% colnames(data)) {
+      dt <- dt %>%
+        formatCurrency('Mediana', mark = ".", dec.mark = ",", currency = '$', digits = 1)
+    }
+    
+    if ("Promedio" %in% colnames(data)) {
+      dt <- dt %>%
+        formatCurrency('Promedio', mark = ".", dec.mark = ",", currency = '$', digits = 1)
+    }
+    
+    if ("Promedio M2" %in% colnames(data)) {
+      dt <- dt %>%
+        formatCurrency('Promedio M2', mark = ".", dec.mark = ",", currency = '$', digits = 1)
+    }
+    
+    if ("% Dolarizado" %in% colnames(data)) {
+      dt <- dt %>%
+        formatPercentage('% Dolarizado', digits = 2)
+    }
+    
+    if ("% Nueva" %in% colnames(data)) {
+      dt <- dt %>%
+        formatPercentage('% Nueva', digits = 2)
+    }
+    
+    # Devuelve el datatable con los formatos aplicados condicionalmente
+    dt
+ })
+
   
   output$mapabarrio <- renderLeaflet({
     
-    
     leaflet() %>%
       addTiles() %>%
-      addPolygons(data = Resumen_CABA, stroke = FALSE, smoothFactor = 0.3, fillOpacity = 0.7,
-                  color = if(input$VariableMapeada == "Cantidad") {~pal(log10(Resumen_CABA$Total)) } else { ~pal(log10(Resumen_CABA$Precio)) },
+      addPolygons(data = sumBarrioMapa, stroke = FALSE, smoothFactor = 0.3, fillOpacity = 0.7,
+                  color = if(input$VariableMapeada == "Cantidad") {~pal(log10(sumBarrioMapa$`Q Avisos`)) } else { ~pal(log10(sumBarrioMapa$Mediana)) },
                   opacity = 1,
-                  popup = paste("<a><strong>", Resumen_CABA$BARRIO,"</strong></a><br>",
-                                "Propiedades: ", Resumen_CABA$Total, "<br>",
-                                "Precio promedio: ", Resumen_CABA$`Promedio precio`, "<br>",
-                                "% Dolarizado: ", Resumen_CABA$`Porcentaje dolarizado`, "<br>")) %>%
+                  popup = paste("<a><strong>", sumBarrioMapa$BARRIO,"</strong></a><br>",
+                                "Propiedades: ", sumBarrioMapa$`Q Avisos`, "<br>",
+                                "Var. mensual avisos: ", paste0(format(100*sumBarrioMapa$`Var. Avisos`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%"), "<br>",
+                                "Precio promedio: ", paste0("$", format(sumBarrioMapa$`Promedio`, nsmall = 2, decimal.mark = ",", big.mark = ".")), "<br>",
+                                "% Dolarizado: ", paste0(format(100*sumBarrioMapa$`% Dolarizado`, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%"), "<br>")) %>%
       addLegend("topright", pal = pal,
-                values = if(input$VariableMapeada == "Cantidad") { Resumen_CABA$Total } else { Resumen_CABA$Precio },
+                values = if(input$VariableMapeada == "Cantidad") { sumBarrioMapa$`Q Avisos` } else { sumBarrioMapa$Mediana },
                 title = if(input$VariableMapeada == "Cantidad") {"Cantidad de viviendas" } else { "Precio promedio" }  )
   })
     
     
+  output$general1 <- renderText({
+    format(sumGenerales$Total0, big.mark = ".", scientific = FALSE)
+  })
+  
+  output$general2 <- renderText({
+    paste0(format(100*sumGenerales$dif_total, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+  
+  output$general3 <- renderText({
+    paste0("$", format(sumGenerales$promedioP0, nsmall = 2, decimal.mark = ",", big.mark = "."))
+  })
+  
+  output$general4 <- renderText({
+    paste0("$", format(sumGenerales$medianaP0, nsmall = 2, decimal.mark = ",", big.mark = ".", scientific = FALSE))
+  })
+  
+  output$general5 <- renderText({
+    paste0(format(100*sumGenerales$dolarizado0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+  
+  output$general6 <- renderText({
+    paste0(format(100*sumGenerales$nueva0, nsmall = 2, digits = 2, decimal.mark = ",", big.mark = "."),"%")
+  })
+  
   output$menu <- renderMenu({
     sidebarMenu(
       menuItem("Mapa de publicaciones", tabName = "mapapublicaciones", icon = icon('dashboard')),
@@ -85,4 +184,3 @@ output$selected_tab_content <- renderUI({
   )
 })
 }
-

@@ -3,6 +3,23 @@
   src: url('SourceSansPro-Semibold.otf') format('opentype');
 }
 
+.skin-blue .main-header .navbar {
+  background-color: #184d6b; /* Cambia esto al color que desees */
+  text-align: left;
+
+}
+
+.skin-blue .main-header .logo {
+  background-color: #184d6b; /* Cambia esto al color que desees */
+  color: white; /* Color del texto del logo */
+  text-align: left;
+}
+
+.skin-blue .main-header .logo:hover {
+  background-color: #184d6b; /* Color del logo cuando se pasa el cursor por encima */
+  text-align: left;
+}
+
 /* Cambiar el color de fondo de la caja */
 .box {
   background-color: #f0f0f0;
@@ -25,9 +42,4 @@
   font-size: 20px
 }
 
-
-.skin-yellow .main-header .logo {
-  font-size: 20px;
-  text-align: left;
-  } 
 
